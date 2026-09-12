@@ -53,12 +53,12 @@ public class LoanProduct : BaseEntity
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Структура комиссий (Value Object)
+    /// Структура комиссий
     /// </summary>
     public ProductFees Fees { get; private set; }
 
     /// <summary>
-    /// Критерии доступности продукта (Value Object, Specification Pattern)
+    /// Критерии доступности продукта 
     /// </summary>
     public EligibilityCriteria Eligibility { get; private set; }
 
@@ -173,6 +173,16 @@ public class LoanProduct : BaseEntity
         return MathHelpers.Round(payment);
     }
 
+    /// <summary>
+    /// Деактивирует продукт (больше недоступен для новых заявок)
+    /// </summary>
+    public void Deactivate()
+    {
+        if (!IsActive)
+            throw new InvalidEntityStateException(nameof(LoanProduct), Id, "Продукт уже деактивирован");
+
+        IsActive = false;
+    }
 
     public void Activate()
     {

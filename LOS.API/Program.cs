@@ -1,5 +1,10 @@
 using LOS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using LOS.Domain.Common.Interfaces.Repositories;
+using LOS.Domain.Common.Interfaces;
+using LOS.Infrastructure.Persistence.Repositories;
+using LOS.Application.Clients.Commands.CreateClient;
+
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +25,12 @@ builder.Services.AddSwaggerGen();
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<ILoanProductRepository, LoanProductRepository>();
+builder.Services.AddScoped<ILoanApplicationRepository, LoanApplicationRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(CreateClientCommandHandler).Assembly));
 var app = builder.Build();
 
 // Миграции при старте (для разработки)
@@ -29,6 +39,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
 }
+
 
 // Configure pipeline
 if (app.Environment.IsDevelopment())
