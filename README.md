@@ -53,3 +53,39 @@
 ```bash
 git clone https://github.com/MikhailMamonov/LoanOriginationSystem.git
 cd LoanOriginationSystem
+```
+---
+### 2. Запуск инфраструктуры (PostgreSQL)
+
+```bash
+docker-compose up -d
+```
+---
+### 3. Применение миграций базы данных
+
+```bash
+cd LOS.API
+dotnet ef database update --project ../LOS.Infrastructure
+```
+---
+### 4. Запуск 
+```bash
+dotnet run
+```
+---
+### 5. Доступ к API
+Откройте браузер и перейдите по адресу:<br>
+👉 https://localhost:5000/swagger (порт может отличаться в зависимости от launchSettings.json)
+---
+### 6. Тестирование
+Проект покрыт модульными тестами, проверяющими как бизнес-правила домена, так и логику обработчиков команд.
+
+```bash
+cd LOS.Tests
+dotnet test
+```
+---
+### 👤 Автор
+**Mikhail Mamonov** <br>
+🔗 [GitHub Profile](https://github.com/MikhailMamonov) <br>
+📧 Свяжитесь со мной для обсуждения деталей архитектуры или возможностей сотрудничества.
