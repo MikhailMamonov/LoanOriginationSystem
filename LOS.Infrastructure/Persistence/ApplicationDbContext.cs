@@ -1,5 +1,8 @@
 using LOS.Domain.Common;
 using LOS.Domain.Clients;
+using LOS.Domain.LoanProducts;
+using LOS.Domain.LoanApplications;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -10,6 +13,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<Employment> Employments => Set<Employment>();
     public DbSet<Income> Incomes => Set<Income>();
+    public DbSet<LoanProduct> LoanProducts => Set<LoanProduct>();
+    public DbSet<LoanApplication> LoanApplications => Set<LoanApplication>();
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -20,58 +25,7 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Конфигурация Client
-        modelBuilder.Entity<Client>(entity =>
-        {
-            entity.ToTable("clients");
-            entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.FirstName).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.LastName).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.Email).HasMaxLength(255).IsRequired();
-            entity.Property(e => e.Phone).HasMaxLength(20).IsRequired();
-            entity.Property(e => e.PassportSeries).HasMaxLength(4).IsRequired();
-            entity.Property(e => e.PassportNumber).HasMaxLength(6).IsRequired();
-
-            entity.HasIndex(e => e.Email).IsUnique();
-            entity.HasIndex(e => e.Phone).IsUnique();
-            entity.HasIndex(e => new { e.PassportSeries, e.PassportNumber }).IsUnique();
-
-            entity.HasMany(e => e.Employments)
-                  .WithOne(e => e.Client)
-                  .HasForeignKey(e => e.ClientId)
-                  .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasMany(e => e.Incomes)
-                  .WithOne(e => e.Client)
-                  .HasForeignKey(e => e.ClientId)
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        // Конфигурация Employment
-        modelBuilder.Entity<Employment>(entity =>
-        {
-            entity.ToTable("employments");
-            entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.EmployerName).HasMaxLength(255).IsRequired();
-            entity.Property(e => e.Position).HasMaxLength(150).IsRequired();
-        });
-
-        // Конфигурация Income
-        modelBuilder.Entity<Income>(entity =>
-        {
-            entity.ToTable("incomes");
-            entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.MonthlyAmount)
-                  .HasColumnType("decimal(18,2)")
-                  .IsRequired();
-
-            entity.Property(e => e.Type)
-                  .HasConversion<string>()
-                  .HasMaxLength(50);
-        });
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
